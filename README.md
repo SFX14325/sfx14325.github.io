@@ -32,3 +32,15 @@ The site is static. Markdown files are edited in a local editor or GitHub and pu
 
 ## Included bird test vault
 The `content/birds/` folder contains example notes about birdwatching, Northern Cardinals, Blue Jays, Black-capped Chickadees, Bald Eagles, migration, backyard habitat, and field observations.
+
+## Automatic index rebuilding and deployment
+
+This repository includes `.github/workflows/deploy.yml`. After you set GitHub Pages to use **GitHub Actions** as its deployment source, every push to the `main` branch will:
+
+1. Check out the repository.
+2. Run `npm run build`, which scans every folder under `content/` for `.md` files and regenerates `content/index.json`.
+3. Package the site and deploy it to GitHub Pages.
+
+You no longer need to run `npm run build-index` manually before publishing. You can still run it locally when you want to preview the updated index before pushing.
+
+The workflow currently watches the `main` branch. If your repository uses a different default branch, change the branch name in `.github/workflows/deploy.yml`.
