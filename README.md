@@ -44,3 +44,9 @@ This repository includes `.github/workflows/deploy.yml`. After you set GitHub Pa
 You no longer need to run `npm run build-index` manually before publishing. You can still run it locally when you want to preview the updated index before pushing.
 
 The workflow currently watches the `main` branch. If your repository uses a different default branch, change the branch name in `.github/workflows/deploy.yml`.
+
+
+## Graph display updates (v5)
+- Tag-cluster headings in the graph are bold for easier scanning.
+- Every graph node displays its note title beneath the dot.
+- Panning uses eased movement so dragging feels smoother.

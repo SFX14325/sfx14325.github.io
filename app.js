@@ -1,4 +1,4 @@
-const state={files:[],docs:new Map(),tags:{},nodes:[],selected:null,filter:null,expanded:true,scale:1,offset:{x:0,y:0},pointer:null};
+const state={files:[],docs:new Map(),tags:{},nodes:[],selected:null,filter:null,expanded:true,scale:1,offset:{x:0,y:0},targetOffset:{x:0,y:0},pointer:null,dragFrame:null};
 const $=id=>document.getElementById(id);
 const clean=s=>String(s||"").replace(/\\/g,"/").replace(/^\/+/,"").replace(/\.md$/i,"");
 const titleFromPath=p=>clean(p).split("/").pop().replace(/[-_]/g," ").replace(/\b\w/g,c=>c.toUpperCase());
@@ -70,8 +70,8 @@ function buildGraph(){
  const groups={};state.nodes.forEach(n=>(groups[n.tag]||=[]).push(n));
  Object.entries(groups).forEach(([tag,items])=>{if(items.length<2)return;const center=items.reduce((p,n)=>({x:p.x+n.x/items.length,y:p.y+n.y/items.length}),{x:0,y:0});items.forEach(n=>{const a=graphPoint(n,w,h),b=graphPoint(center,w,h);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=tagInfo(tag).color;ctx.globalAlpha=.10;ctx.stroke();});});
  ctx.globalAlpha=1;
- Object.entries(groups).forEach(([tag,items])=>{const c=items.reduce((p,n)=>({x:p.x+n.x/items.length,y:p.y+n.y/items.length}),{x:0,y:0}),pt=graphPoint(c,w,h);ctx.font="10px system-ui";ctx.fillStyle=tagInfo(tag).color;ctx.globalAlpha=.85;ctx.fillText(tagInfo(tag).name||tag,pt.x+12,pt.y-12);});
- state.nodes.forEach(n=>{const p=graphPoint(n,w,h),selected=n.doc.path===state.selected;ctx.beginPath();ctx.arc(p.x,p.y,n.r+(selected?3:0),0,Math.PI*2);ctx.fillStyle=n.color;ctx.globalAlpha=selected?1:.88;ctx.shadowColor=n.color;ctx.shadowBlur=selected?18:9;ctx.fill();ctx.shadowBlur=0;ctx.globalAlpha=1;if(selected){ctx.beginPath();ctx.arc(p.x,p.y,13,0,Math.PI*2);ctx.strokeStyle=n.color;ctx.globalAlpha=.65;ctx.lineWidth=1;ctx.stroke();ctx.globalAlpha=1;}});
+ Object.entries(groups).forEach(([tag,items])=>{const c=items.reduce((p,n)=>({x:p.x+n.x/items.length,y:p.y+n.y/items.length}),{x:0,y:0}),pt=graphPoint(c,w,h);ctx.font="700 11px system-ui";ctx.fillStyle=tagInfo(tag).color;ctx.globalAlpha=.85;ctx.fillText(tagInfo(tag).name||tag,pt.x+12,pt.y-12);});
+ state.nodes.forEach(n=>{const p=graphPoint(n,w,h),selected=n.doc.path===state.selected;ctx.beginPath();ctx.arc(p.x,p.y,n.r+(selected?3:0),0,Math.PI*2);ctx.fillStyle=n.color;ctx.globalAlpha=selected?1:.88;ctx.shadowColor=n.color;ctx.shadowBlur=selected?18:9;ctx.fill();ctx.shadowBlur=0;ctx.globalAlpha=1;if(selected){ctx.beginPath();ctx.arc(p.x,p.y,13,0,Math.PI*2);ctx.strokeStyle=n.color;ctx.globalAlpha=.65;ctx.lineWidth=1;ctx.stroke();ctx.globalAlpha=1;}ctx.font=selected?'600 10px system-ui':'10px system-ui';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text').trim()||'#dce3ed';ctx.globalAlpha=selected?1:.82;const label=n.doc.title.length>24?n.doc.title.slice(0,22)+'…':n.doc.title;ctx.fillText(label,p.x,p.y+n.r+7,130);ctx.globalAlpha=1;});
  $("graph_empty").hidden=state.nodes.length>0;
  $("graph_summary").textContent=`Showing ${state.nodes.length} of ${state.docs.size} notes${state.filter?" · filtered by "+(tagInfo(state.filter).name||state.filter):""} · ${Object.keys(groups).length} clusters`;
 }
@@ -87,14 +87,15 @@ function openDoc(path){
  $("reader_meta").innerHTML=doc.tags.map(t=>{const info=tagInfo(t);return`<span class="meta_tag"><i style="background:${esc(info.color)}"></i>${esc(info.name||t)}</span>`}).join("");
  $("document").scrollTop=0;
 }
-function fitGraph(){state.scale=1;state.offset={x:0,y:0};buildGraph();}
+function fitGraph(){state.scale=1;state.offset={x:0,y:0};state.targetOffset={x:0,y:0};buildGraph();}
+function animateDrag(){if(state.dragFrame!==null)return;const tick=()=>{const dx=state.targetOffset.x-state.offset.x,dy=state.targetOffset.y-state.offset.y;state.offset.x+=dx*.24;state.offset.y+=dy*.24;buildGraph();if(Math.abs(dx)+Math.abs(dy)>.25){state.dragFrame=requestAnimationFrame(tick);}else{state.offset={...state.targetOffset};state.dragFrame=null;buildGraph();}};state.dragFrame=requestAnimationFrame(tick);}
 function eventGraphPos(e){const r=$("graph_canvas").getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
 const canvas=$("graph_canvas");
-canvas.addEventListener("pointerdown",e=>{const p=eventGraphPos(e);state.pointer={start:p,origin:{...state.offset},moved:false};canvas.setPointerCapture(e.pointerId);canvas.classList.add("dragging");});
-canvas.addEventListener("pointermove",e=>{if(!state.pointer)return;const p=eventGraphPos(e),dx=p.x-state.pointer.start.x,dy=p.y-state.pointer.start.y;if(Math.hypot(dx,dy)>3)state.pointer.moved=true;if(state.pointer.moved){state.offset={x:state.pointer.origin.x+dx,y:state.pointer.origin.y+dy};buildGraph();}});
-canvas.addEventListener("pointerup",e=>{if(!state.pointer)return;const p=eventGraphPos(e),wasDrag=state.pointer.moved;state.pointer=null;canvas.classList.remove("dragging");if(!wasDrag){const r=canvas.getBoundingClientRect(),x=(p.x-r.width/2-state.offset.x)/state.scale+r.width/2,y=(p.y-r.height/2-state.offset.y)/state.scale+r.height/2;let hit=null,best=Infinity;state.nodes.forEach(n=>{const d=Math.hypot(n.x-x,n.y-y);if(d<Math.max(15,n.r+7)&&d<best){best=d;hit=n;}});if(hit)openDoc(hit.doc.path);}});
+canvas.addEventListener("pointerdown",e=>{const p=eventGraphPos(e);state.pointer={start:p,origin:{...state.targetOffset},moved:false};canvas.setPointerCapture(e.pointerId);canvas.classList.add("dragging");});
+canvas.addEventListener("pointermove",e=>{if(!state.pointer)return;const p=eventGraphPos(e),dx=p.x-state.pointer.start.x,dy=p.y-state.pointer.start.y;if(Math.hypot(dx,dy)>3)state.pointer.moved=true;if(state.pointer.moved){state.targetOffset={x:state.pointer.origin.x+dx,y:state.pointer.origin.y+dy};animateDrag();}});
+canvas.addEventListener("pointerup",e=>{if(!state.pointer)return;const p=eventGraphPos(e),wasDrag=state.pointer.moved;state.pointer=null;if(wasDrag){state.targetOffset={...state.targetOffset};animateDrag();}canvas.classList.remove("dragging");if(!wasDrag){const r=canvas.getBoundingClientRect(),x=(p.x-r.width/2-state.offset.x)/state.scale+r.width/2,y=(p.y-r.height/2-state.offset.y)/state.scale+r.height/2;let hit=null,best=Infinity;state.nodes.forEach(n=>{const d=Math.hypot(n.x-x,n.y-y);if(d<Math.max(15,n.r+7)&&d<best){best=d;hit=n;}});if(hit)openDoc(hit.doc.path);}});
 canvas.addEventListener("pointercancel",()=>{state.pointer=null;canvas.classList.remove("dragging");});
-canvas.addEventListener("wheel",e=>{e.preventDefault();const p=eventGraphPos(e),old=state.scale,next=Math.max(.35,Math.min(3.5,old*(e.deltaY<0?1.12:.89))),w=canvas.clientWidth,h=canvas.clientHeight;const gx=(p.x-w/2-state.offset.x)/old+w/2,gy=(p.y-h/2-state.offset.y)/old+h/2;state.scale=next;state.offset={x:p.x-(gx-w/2)*next-w/2,y:p.y-(gy-h/2)*next-h/2};buildGraph();},{passive:false});
+canvas.addEventListener("wheel",e=>{e.preventDefault();const p=eventGraphPos(e),old=state.scale,next=Math.max(.35,Math.min(3.5,old*(e.deltaY<0?1.12:.89))),w=canvas.clientWidth,h=canvas.clientHeight;const gx=(p.x-w/2-state.offset.x)/old+w/2,gy=(p.y-h/2-state.offset.y)/old+h/2;state.scale=next;state.offset={x:p.x-(gx-w/2)*next-w/2,y:p.y-(gy-h/2)*next-h/2};state.targetOffset={...state.offset};buildGraph();},{passive:false});
 $("zoom_in").onclick=()=>{state.scale=Math.min(3.5,state.scale*1.2);buildGraph();};
 $("zoom_out").onclick=()=>{state.scale=Math.max(.35,state.scale/1.2);buildGraph();};
 $("zoom_fit").onclick=fitGraph;$("graph_reset").onclick=fitGraph;

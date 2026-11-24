@@ -13,3 +13,6 @@ button,input{font:inherit;color:inherit}.topbar{height:58px;display:flex;align-i
 @media(max-width:760px){body{overflow:auto}.topbar{gap:8px;padding:0 9px}.brand{font-size:12px}.search{width:auto;flex:1}.top_action{display:none}.workspace{height:auto;min-height:calc(100vh - 58px);display:grid;grid-template-columns:1fr;grid-template-rows:minmax(530px,65vh) auto}.sidebar{position:fixed;z-index:20;top:58px;bottom:0;width:270px;transform:translateX(-105%);transition:transform .2s;box-shadow:10px 0 35px #0005}.sidebar.open{transform:translateX(0)}.reader{min-height:450px;border-left:0;border-top:1px solid var(--line)}.graph_header{padding:20px}.graph_footer{padding:9px 14px}.document{min-height:350px}}
 
 .graph_stage canvas{touch-action:none}.graph_stage canvas.dragging{cursor:grabbing}.graph_stage canvas{cursor:grab}.graph_empty[hidden]{display:none}
+
+/* Graph labels: bold cluster headings and readable note titles beneath nodes. */
+.graph_stage canvas{user-select:none;-webkit-user-select:none}
