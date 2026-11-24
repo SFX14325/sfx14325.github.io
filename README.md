@@ -50,3 +50,8 @@ The workflow currently watches the `main` branch. If your repository uses a diff
 - Tag-cluster headings in the graph are bold for easier scanning.
 - Every graph node displays its note title beneath the dot.
 - Panning uses eased movement so dragging feels smoother.
+
+
+## Deployment workflow v6
+
+The Pages workflow uses separate build and deploy jobs. The build job regenerates `content/index.json` and uploads the Pages artifact. The deploy job waits for the build job and has `actions: read`, `pages: write`, and `id-token: write` permissions. The artifact upload includes hidden files such as `.nojekyll`.
