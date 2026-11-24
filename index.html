@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>My Knowledge Garden</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <button id="mobile_menu" class="icon_button" aria-label="Toggle folders">☰</button>
+    <div class="brand"><span class="brand_mark">●</span> my knowledge garden</div>
+    <label class="search"><span>⌕</span><input id="search" placeholder="Search thoughts, notes, tags..." autocomplete="off"></label>
+    <button id="graph_reset" class="top_action">Reset graph</button>
+    <button id="theme_toggle" class="icon_button" title="Toggle theme">◐</button>
+  </header>
+  <div class="workspace">
+    <aside id="sidebar" class="sidebar">
+      <div class="side_top"><span>LIBRARY</span><button id="expand_all" title="Expand folders">↕</button></div>
+      <nav id="file_tree" aria-label="Folders and notes"></nav>
+      <div class="side_section">
+        <div class="side_top">EXPLORE BY TAG</div>
+        <div id="tag_list" class="tag_list"></div>
+      </div>
+      <div class="sidebar_bottom"><span class="status_dot"></span> <span id="note_count">Loading your notes...</span></div>
+    </aside>
+    <main class="graph_area">
+      <div class="graph_header">
+        <div><div class="eyebrow">YOUR PERSONAL KNOWLEDGE GRAPH</div><h1>Explore your mind</h1><p>Each dot is a note. Colors represent its tags. Select a dot to read it.</p></div>
+        <div class="graph_legend_hint">Drag to explore · Scroll to zoom · Click a dot to open</div>
+      </div>
+      <div class="graph_stage" id="graph_stage">
+        <canvas id="graph_canvas" aria-label="Interactive map of notes"></canvas>
+        <div id="graph_empty" class="graph_empty" hidden>
+          <div class="empty_orbit">●</div><h2>Your knowledge graph starts here</h2>
+          <p>Add Markdown notes under <code>content/</code>, assign tags, and rebuild the index.</p>
+        </div>
+        <div class="graph_zoom"><button id="zoom_in">+</button><button id="zoom_out">−</button><button id="zoom_fit">Fit</button></div>
+      </div>
+      <div class="graph_footer"><span id="graph_summary">Mapping your notes...</span><span>Connected notes share links or tags</span></div>
+    </main>
+    <aside class="reader">
+      <div class="reader_top"><span id="reader_location">NOTE PREVIEW</span><button id="close_reader" title="Close note">×</button></div>
+      <article id="document" class="document">
+        <div class="reader_welcome"><div class="reader_icon">↗</div><h2>Select a thought</h2><p>Click any dot in the knowledge graph or choose a note from the library.</p></div>
+      </article>
+      <div id="reader_meta" class="reader_meta"></div>
+    </aside>
+  </div>
+</body>
+</html>
