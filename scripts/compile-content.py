@@ -2,6 +2,7 @@ import json, re, html, shutil
 from pathlib import Path
 from urllib.parse import urlsplit, unquote
 import mistune, bleach
+from bleach.css_sanitizer import CSSSanitizer
 root=Path('content'); out=Path('compiled'); shutil.rmtree(out,ignore_errors=True); out.mkdir()
 notes=json.loads((root/'index.json').read_text())['notes']; tags=json.loads((root/'tags.json').read_text()); settings=json.loads(Path('settings.json').read_text()); lookup={}; names={}
 def clean(s): return re.sub(r'\.md$','',s.replace('\\','/').lstrip('/'),flags=re.I).lower()
@@ -27,6 +28,7 @@ for n in notes:
  # Avoid rewriting fenced and inline code.
  parts=re.split(r'(```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]*`)',body); body=''.join(x if i%2 else re.sub(r'!?\[\[([^\]]+)\]\]',wiki,x) for i,x in enumerate(parts))
  def attrs(tag,key,value):
+  if key=='style': return tag=='span' and bool(re.fullmatch(r'color:\s*#[0-9a-fA-F]{6};?',value))
   if key in ('src','poster','href'):
    u=urlsplit(value)
    if tag=='iframe': return key=='src' and u.scheme=='https' and ((u.netloc=='www.youtube-nocookie.com' and u.path.startswith('/embed/')) or (u.netloc=='www.youtube.com' and u.path.startswith('/embed/') and settings.get('media',{}).get('youtube_nocookie_only') is False) or (u.netloc=='player.vimeo.com' and u.path.startswith('/video/')))
@@ -34,6 +36,6 @@ for n in notes:
    return True
   if tag=='input': return key in ('checked','disabled') or (key=='type' and value=='checkbox')
   return key in ('class','title','alt','data-wiki','controls','playsinline','muted','loop','preload','type','width','height','allowfullscreen','loading','align')
- result=bleach.clean(markdown(body),tags=allowed,attributes=attrs,protocols=['http','https','mailto','tel'],strip=True)
+ result=bleach.clean(markdown(body),tags=allowed,attributes=attrs,css_sanitizer=CSSSanitizer(allowed_css_properties=['color']),protocols=['http','https','mailto','tel'],strip=True)
  dest=out/(p+'.html'); dest.parent.mkdir(parents=True,exist_ok=True); dest.write_text(result,encoding='utf8')
 print(f'Compiled {len(notes)} notes.')
