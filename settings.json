@@ -1,0 +1,43 @@
+{
+  "theme": {
+    "default": "dark",
+    "dark": {
+      "bg": "#111419",
+      "panel": "#171b21",
+      "panel2": "#202630",
+      "text": "#e5e9ef",
+      "muted": "#87919f",
+      "line": "#29313b",
+      "accent": "#91a9ff",
+      "hover": "#242c37",
+      "reader": "#15191f"
+    },
+    "light": {
+      "bg": "#f4f5f7",
+      "panel": "#ffffff",
+      "panel2": "#f0f2f5",
+      "text": "#252a32",
+      "muted": "#737d8b",
+      "line": "#dfe3e8",
+      "accent": "#536fca",
+      "hover": "#eef1f6",
+      "reader": "#ffffff"
+    }
+  },
+  "appearance": {
+    "font_family": "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif",
+    "base_font_size": "14px",
+    "panel_radius": "8px",
+    "motion_enabled": true,
+    "intro_duration_ms": 1500,
+    "graph_label_size": 10,
+    "cluster_label_size": 12
+  },
+  "media": {
+    "image_max_width": "100%",
+    "image_lightbox": true,
+    "video_controls": true,
+    "external_links_new_tab": true,
+    "youtube_nocookie_only": true
+  }
+}

@@ -55,3 +55,40 @@ The workflow currently watches the `main` branch. If your repository uses a diff
 ## Deployment workflow v6
 
 The Pages workflow uses separate build and deploy jobs. The build job regenerates `content/index.json` and uploads the Pages artifact. The deploy job waits for the build job and has `actions: read`, `pages: write`, and `id-token: write` permissions. The artifact upload includes hidden files such as `.nojekyll`.
+
+
+## Version 7: media, motion, settings, and note history
+
+### Media in Markdown
+
+Markdown images and GIFs are supported. Relative paths resolve from the Markdown note's own folder:
+
+```markdown
+![A cardinal](attachments/cardinal.jpg)
+![A flight animation](attachments/flight.gif)
+[Audubon](https://www.audubon.org/)
+```
+
+Local video and audio can be embedded with HTML:
+
+```html
+<video controls width="100%">
+  <source src="attachments/bird-flight.mp4" type="video/mp4">
+</video>
+```
+
+YouTube embeds can use `youtube-nocookie.com`:
+
+```html
+<iframe src="https://www.youtube-nocookie.com/embed/VIDEO_ID" title="Bird video" allowfullscreen></iframe>
+```
+
+HTML in notes is sanitized. Iframes are limited to YouTube and Vimeo player hosts. Images can be clicked to open an enlarged lightbox. Keep media files alongside the note, for example `content/birds/attachments/cardinal.jpg`, and reference them as `attachments/cardinal.jpg` from `content/birds/northern-cardinal.md`.
+
+### Website settings
+
+Edit `settings.json` to change dark/light theme colors, default theme, font family, base font size, motion preferences, intro duration, graph cluster label size, and media behavior. The website loads this file at startup. CSS variables remain available for additional styling in `styles.css`.
+
+### Navigation history
+
+The note reader includes back and forward controls. Opening a note from the graph, folder tree, search, or a wiki link adds it to the in-session history.

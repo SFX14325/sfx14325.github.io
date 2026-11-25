@@ -6,9 +6,15 @@
   <title>My Knowledge Garden</title>
   <link rel="stylesheet" href="styles.css">
   <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
   <script defer src="app.js"></script>
 </head>
 <body>
+  <div id="intro_screen" class="intro_screen" aria-hidden="true">
+    <div class="intro_orbit intro_orbit_one"></div>
+    <div class="intro_orbit intro_orbit_two"></div>
+    <div class="intro_content"><div class="intro_mark">●</div><div class="intro_title">my knowledge garden</div><div class="intro_subtitle">A space for connected thoughts</div></div>
+  </div>
   <header class="topbar">
     <button id="mobile_menu" class="icon_button" aria-label="Toggle folders">☰</button>
     <div class="brand"><span class="brand_mark">●</span> my knowledge garden</div>
@@ -27,9 +33,9 @@
       <div class="sidebar_bottom"><span class="status_dot"></span> <span id="note_count">Loading your notes...</span></div>
     </aside>
     <main class="graph_area">
-      <div class="graph_header">
-        <div><div class="eyebrow">YOUR PERSONAL KNOWLEDGE GRAPH</div><h1>Explore your mind</h1><p>Each dot is a note. Colors represent its tags. Select a dot to read it.</p></div>
-        <div class="graph_legend_hint">Drag to explore · Scroll to zoom · Click a dot to open</div>
+      <div class="graph_header" id="graph_header">
+        <div class="graph_intro_copy"><div class="eyebrow">YOUR PERSONAL KNOWLEDGE GRAPH</div><h1>Explore your mind</h1><p>Each dot is a note. Colors represent its tags. Select a dot to read it.</p><div class="graph_legend_hint">Drag to explore · Scroll to zoom · Click a dot to open</div></div>
+        <button id="toggle_graph_info" class="graph_info_toggle" aria-expanded="true" title="Collapse graph information">Hide info <span>⌃</span></button>
       </div>
       <div class="graph_stage" id="graph_stage">
         <canvas id="graph_canvas" aria-label="Interactive map of notes"></canvas>
@@ -42,7 +48,7 @@
       <div class="graph_footer"><span id="graph_summary">Mapping your notes...</span><span>Connected notes share links or tags</span></div>
     </main>
     <aside class="reader">
-      <div class="reader_top"><span id="reader_location">NOTE PREVIEW</span><button id="close_reader" title="Close note">×</button></div>
+      <div class="reader_top"><span id="reader_location">NOTE PREVIEW</span><div class="reader_controls"><button id="history_back" title="Previous note" aria-label="Previous note" disabled>←</button><button id="history_forward" title="Next note" aria-label="Next note" disabled>→</button><button id="close_reader" title="Close note" aria-label="Close note">×</button></div></div>
       <article id="document" class="document">
         <div class="reader_welcome"><div class="reader_icon">↗</div><h2>Select a thought</h2><p>Click any dot in the knowledge graph or choose a note from the library.</p></div>
       </article>
