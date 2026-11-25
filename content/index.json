@@ -1,13 +1,1 @@
-[
-  "birds/backyard-habitat.md",
-  "birds/bald-eagle.md",
-  "birds/bird-migration.md",
-  "birds/birdwatching.md",
-  "birds/black-capped-chickadee.md",
-  "birds/blue-jay.md",
-  "birds/field-notes.md",
-  "birds/media-test.md",
-  "birds/northern-cardinal.md",
-  "notes/getting-started.md",
-  "projects/sample-project.md"
-]
+{"version":2,"notes":[{"path":"birds/backyard-habitat.md","title":"Backyard Bird Habitat","tags":["birds","backyard","habitat"],"links":["birds/northern-cardinal","birds/blue-jay","birds/black-capped-chickadee"]},{"path":"birds/bald-eagle.md","title":"Bald Eagle","tags":["birds","raptors","species"],"links":["birds/backyard-habitat"]},{"path":"birds/bird-migration.md","title":"Bird Migration","tags":["birds","nature","seasonal"],"links":["birds/birdwatching","birds/backyard-habitat"]},{"path":"birds/birdwatching.md","title":"Birdwatching","tags":["birds","hobbies","ideas"],"links":["birds/northern-cardinal","birds/black-capped-chickadee","birds/bird-migration","birds/backyard-habitat"]},{"path":"birds/black-capped-chickadee.md","title":"Black-capped Chickadee","tags":["birds","woodland","species"],"links":["birds/birdwatching","birds/backyard-habitat"]},{"path":"birds/blue-jay.md","title":"Blue Jay","tags":["birds","backyard","species"],"links":["birds/northern-cardinal","birds/backyard-habitat"]},{"path":"birds/field-notes.md","title":"Bird Field Notes","tags":["birds","journal","observations"],"links":["birds/northern-cardinal","birds/birdwatching"]},{"path":"birds/media-test.md","title":"Bird Media Test","tags":["birds","learning"],"links":["birds/birdwatching"]},{"path":"birds/northern-cardinal.md","title":"Northern Cardinal","tags":["birds","backyard","species"],"links":["birds/blue-jay","birds/backyard-habitat"]},{"path":"notes/getting-started.md","title":"Getting Started","tags":["ideas","learning"],"links":["birds/birdwatching","birds/northern-cardinal"]},{"path":"projects/sample-project.md","title":"Sample Project","tags":["projects","ideas"],"links":["notes/getting-started"]}]}

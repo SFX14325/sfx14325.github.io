@@ -92,3 +92,6 @@ Edit `settings.json` to change dark/light theme colors, default theme, font fami
 ### Navigation history
 
 The note reader includes back and forward controls. Opening a note from the graph, folder tree, search, or a wiki link adds it to the in-session history.
+
+## v8 performance
+The build creates a compact graph metadata index and a separate full-text search index. Note bodies load on demand and the last 32 bodies are cached. Search downloads its index on first use. Graph layout and edges are cached until the viewport or filter changes. Above 500 visible notes, labels and edges are reduced at low zoom, node glows are disabled except for the selection, and cluster spokes are hidden. Above 500 total notes folders start collapsed. Large clusters have more space. Full-text search still downloads the complete search index; very large vaults may eventually need a worker or partitioned search. Run `npm run build-index` before local previews; GitHub Actions does this automatically.
