@@ -63,3 +63,10 @@ button:active{transform:translateY(1px)}
 
 .document .note_image{max-width:var(--image-max-width,100%);border-radius:var(--panel-radius,8px)}
 .no_motion *, .no_motion *::before,.no_motion *::after{animation:none!important;transition:none!important}
+
+/* Equal history controls, independent of platform arrow fonts. */
+.reader_controls{flex-shrink:0}
+.reader_controls button{display:grid;place-items:center;width:36px;min-width:36px;height:36px;padding:0;flex:0 0 36px;line-height:1;appearance:none}
+.reader_controls svg{display:block;width:20px;height:20px;pointer-events:none}
+#reader_location{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:760px){.reader_controls button{width:44px;min-width:44px;height:44px;flex-basis:44px}.reader_top{padding:0 10px;gap:6px}}
