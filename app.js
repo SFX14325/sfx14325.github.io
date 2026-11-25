@@ -26,8 +26,35 @@ async function loadIndex(){
 let search_index=null, search_pending=null;
 async function get_search_index(){if(search_index)return search_index;if(!search_pending)search_pending=fetch(assetUrl("content/search-index.json")).then(r=>{if(!r.ok)throw Error("Search index unavailable");return r.json();}).then(rows=>search_index=rows).finally(()=>search_pending=null);return search_pending;}
 function update_tree_selection(){const tree=$("file_tree");tree.querySelector('.tree_file.active')?.classList.remove('active');const button=tree.querySelector(`[data-path="${CSS.escape(state.selected||'')}"]`);button?.classList.add('active');}
-function buildTree(){const tree=Object.create(null);for(const path of state.files){let n=tree;const parts=clean(path).split("/");parts.forEach((part,i)=>{if(i===parts.length-1)(n.__files||=[]).push({name:part,path});else n=n[part]||=Object.create(null);});}function render(n){let html="";Object.keys(n).filter(k=>k!=="__files").sort().forEach(k=>html+=`<details class="tree_folder" ${state.expanded?"open":""}><summary>${esc(k.replace(/[-_]/g," "))}</summary><div class="tree_children">${render(n[k])}</div></details>`);(n.__files||[]).sort((a,b)=>a.name.localeCompare(b.name)).forEach(f=>{if(state.docs.has(f.path))html+=`<button class="tree_file ${state.selected===f.path?"active":""}" data-path="${esc(f.path)}"><span class="file_icon">▤</span>${esc(titleFromPath(f.path))}</button>`;});return html;}$ ("file_tree").innerHTML=render(tree);$("file_tree").querySelectorAll("[data-path]").forEach(b=>b.onclick=()=>openDoc(b.dataset.path));}
-function buildTagList(){const counts=Object.create(null);state.docs.forEach(d=>d.tags.forEach(t=>counts[t]=(counts[t]||0)+1));$("tag_list").innerHTML=Object.keys(counts).sort().map(t=>{const info=tagInfo(t);return `<button class="tag_filter ${state.filter===t?"selected":""}" data-tag="${esc(t)}"><i class="tag_swatch" style="background:${esc(info.color)}"></i>${esc(info.name||t)}<span class="tag_count">${counts[t]}</span></button>`}).join("");$("tag_list").querySelectorAll("[data-tag]").forEach(b=>b.onclick=()=>{state.filter=state.filter===b.dataset.tag?null:b.dataset.tag;buildTagList();buildGraph();});}
+// Independent sidebar filters; no graph or search-index changes.
+function sidebar_filter(id, target_id, placeholder, apply_filter){
+ const target=$(target_id), input=document.createElement('input');
+ input.id=id;input.type='search';input.placeholder=placeholder;input.setAttribute('aria-label',placeholder);
+ input.autocomplete='off';input.className='sidebar_list_filter';
+ input.style.cssText='display:block;width:100%;box-sizing:border-box;margin:6px 0 10px;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);font:inherit;font-size:12px;';
+ target.before(input);input.addEventListener('input',apply_filter);return input;
+}
+function filter_library(){
+ const query=($('library_filter')?.value||'').trim().toLowerCase(), tree=$('file_tree');
+ for(const button of tree.querySelectorAll('[data-path]')){
+  const doc=state.docs.get(button.dataset.path);
+  button.hidden=!!query&&!`${button.dataset.path} ${titleFromPath(button.dataset.path)} ${doc?.title||''}`.toLowerCase().includes(query);
+  button.style.display=button.hidden?'none':'';
+ }
+ for(const folder of Array.from(tree.querySelectorAll('.tree_folder')).reverse()){
+  if(query){if(!('filterOpen' in folder.dataset))folder.dataset.filterOpen=String(folder.open);folder.hidden=!Array.from(folder.querySelectorAll('[data-path]')).some(b=>!b.hidden);folder.open=!folder.hidden;}
+  else{folder.hidden=false;if('filterOpen' in folder.dataset){folder.open=folder.dataset.filterOpen==='true';delete folder.dataset.filterOpen;}}
+  folder.style.display=folder.hidden?'none':'';
+ }
+}
+function filter_tags(){
+ const query=($('tag_list_filter')?.value||'').trim().toLowerCase();
+ for(const button of $('tag_list').querySelectorAll('[data-tag]')){
+  const tag=button.dataset.tag;button.hidden=!!query&&!`${tag} ${tagInfo(tag).name||''}`.toLowerCase().includes(query);button.style.display=button.hidden?'none':'';
+ }
+}
+function buildTree(){const tree=Object.create(null);for(const path of state.files){let n=tree;const parts=clean(path).split("/");parts.forEach((part,i)=>{if(i===parts.length-1)(n.__files||=[]).push({name:part,path});else n=n[part]||=Object.create(null);});}function render(n){let html="";Object.keys(n).filter(k=>k!=="__files").sort().forEach(k=>html+=`<details class="tree_folder" ${state.expanded?"open":""}><summary>${esc(k.replace(/[-_]/g," "))}</summary><div class="tree_children">${render(n[k])}</div></details>`);(n.__files||[]).sort((a,b)=>a.name.localeCompare(b.name)).forEach(f=>{if(state.docs.has(f.path))html+=`<button class="tree_file ${state.selected===f.path?"active":""}" data-path="${esc(f.path)}"><span class="file_icon">▤</span>${esc(titleFromPath(f.path))}</button>`;});return html;}$ ("file_tree").innerHTML=render(tree);$("file_tree").querySelectorAll("[data-path]").forEach(b=>b.onclick=()=>openDoc(b.dataset.path));filter_library();}
+function buildTagList(){const counts=Object.create(null);state.docs.forEach(d=>d.tags.forEach(t=>counts[t]=(counts[t]||0)+1));$("tag_list").innerHTML=Object.keys(counts).sort().map(t=>{const info=tagInfo(t);return `<button class="tag_filter ${state.filter===t?"selected":""}" data-tag="${esc(t)}"><i class="tag_swatch" style="background:${esc(info.color)}"></i>${esc(info.name||t)}<span class="tag_count">${counts[t]}</span></button>`}).join("");$("tag_list").querySelectorAll("[data-tag]").forEach(b=>b.onclick=()=>{state.filter=state.filter===b.dataset.tag?null:b.dataset.tag;buildTagList();buildGraph();});filter_tags();}
 function wikiTargets(body){return[...body.matchAll(/!?\[\[([^\]]+)\]\]/g)].map(m=>m[1].split("|")[0].split("#")[0]);}
 function resolveWiki(target){const wanted=clean(target).toLowerCase();return path_lookup.get(wanted)||title_lookup.get(wanted.split('/').pop());}
 function primary_tag(doc){
@@ -123,4 +150,6 @@ $("zoom_in").onclick=()=>{state.scale=Math.min(3.5,state.scale*1.2);buildGraph()
 $("toggle_graph_info").onclick=()=>{state.graphInfoOpen=!state.graphInfoOpen;$("graph_header").classList.toggle("collapsed",!state.graphInfoOpen);$("toggle_graph_info").setAttribute("aria-expanded",String(state.graphInfoOpen));$("toggle_graph_info").innerHTML=state.graphInfoOpen?'Hide info <span>⌃</span>':'Show info <span>⌄</span>';requestAnimationFrame(buildGraph);};
 $("search").addEventListener("input",async e=>{const q=e.target.value.trim().toLowerCase();let box=document.querySelector(".search_results");if(!q){box?.remove();return;}if(!box){box=document.createElement("div");box.className="search_results";document.querySelector(".topbar").append(box);}box.textContent="Searching…";let rows;try{rows=await get_search_index();}catch(error){if(box.isConnected)box.textContent=error.message;return;}if(!box.isConnected||$("search").value.trim().toLowerCase()!==q)return;const matches=[];for(const [path,text] of rows){if(text.includes(q)){matches.push(state.docs.get(path));if(matches.length===30)break;}}box.innerHTML=matches.map(d=>`<a class="search_result" href="#" data-result="${esc(d.path)}">${esc(d.title)}<small>${esc(d.path)}</small></a>`).join("")||'<div class="search_result">No matching notes</div>';box.querySelectorAll("[data-result]").forEach(a=>a.onclick=e=>{e.preventDefault();openDoc(a.dataset.result);box.remove();$("search").value="";$("sidebar").classList.remove("open");});});
 function playIntro(){const intro=$("intro_screen");if(!intro)return;if(window.matchMedia('(prefers-reduced-motion: reduce)').matches||state.settings.appearance?.motion_enabled===false){intro.remove();return;}const duration=Number(state.settings.appearance?.intro_duration_ms||1500);intro.style.setProperty('--intro-duration',`${duration}ms`);window.setTimeout(()=>{intro.classList.add('intro_done');window.setTimeout(()=>intro.remove(),700);},Math.max(450,duration));}
+sidebar_filter('library_filter','file_tree','Filter library...',filter_library);
+sidebar_filter('tag_list_filter','tag_list','Filter tags...',filter_tags);
 new ResizeObserver(buildGraph).observe($("graph_stage"));window.addEventListener("resize",buildGraph);(async()=>{await loadSettings(state);playIntro();await loadIndex();})();
