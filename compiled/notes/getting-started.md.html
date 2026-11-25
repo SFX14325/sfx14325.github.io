@@ -1,0 +1,18 @@
+<h1>Getting started</h1>
+<p>This is your personal knowledge garden. Capture thoughts, questions, observations, plans, and things you learn. Each Markdown file becomes a note in the graph.</p>
+<h2>Connect thoughts</h2>
+<p>Write <code>[[birds/birdwatching]]</code> or <code>[[birds/northern-cardinal]]</code> to link notes. Linked notes become connected dots in the graph. A note can have several tags, but its first tag determines its primary graph cluster.</p>
+<blockquote>
+<p>[!NOTE] Static publishing
+GitHub Pages hosts the files but cannot write edits back into the repository. Edit Markdown locally or in GitHub, then commit and push.</p>
+</blockquote>
+<h2>Add a note</h2>
+<p>Create a <code>.md</code> file anywhere under <code>content/</code>. Add YAML frontmatter:</p>
+<pre><code class="language-yaml">---
+title: My note title
+tags:
+  - ideas
+  - personal
+---
+</code></pre>
+<p>Then run <code>npm run build-index</code> and commit the updated <code>content/index.json</code>.</p>

@@ -1,0 +1,7 @@
+function relativeContentUrl(path,docPath){if(/^(https?:|data:|blob:|mailto:|tel:|#|\/\/)/i.test(path))return path;const base=new URL("content/"+docPath,document.baseURI);return new URL(path,base).toString();}
+export function renderMarkdown(body,doc,settings){const holder=document.createElement('template');holder.innerHTML=body;const content=holder.content;
+ content.querySelectorAll('iframe').forEach(frame=>{if(!frame.getAttribute('src'))frame.remove();else{frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';}});
+ content.querySelectorAll('[src],[poster]').forEach(media=>{for(const attr of ['src','poster']){const value=media.getAttribute(attr);if(value)media.setAttribute(attr,relativeContentUrl(value,doc.path));}});
+ content.querySelectorAll('img').forEach(img=>{img.classList.add('note_image');img.loading='lazy';img.decoding='async';});
+ content.querySelectorAll('video,audio').forEach(media=>{media.preload='none';if(settings.media?.video_controls!==false)media.controls=true;});
+ content.querySelectorAll('a[href]').forEach(a=>{if(a.hasAttribute('data-wiki')||a.getAttribute('href').startsWith('#'))return;const url=new URL(relativeContentUrl(a.getAttribute('href'),doc.path),document.baseURI);a.href=url.href;if(/^https?:$/.test(url.protocol)&&url.origin!==location.origin&&settings.media?.external_links_new_tab!==false){a.target='_blank';a.rel='noopener noreferrer';}});return holder.innerHTML;}
