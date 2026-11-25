@@ -1,66 +1,14 @@
 {
-  "birds": {
-    "name": "Birds",
-    "color": "#78a9e8"
-  },
-  "backyard": {
-    "name": "Backyard",
-    "color": "#79c69b"
-  },
-  "species": {
-    "name": "Species",
-    "color": "#d8a56d"
-  },
-  "woodland": {
-    "name": "Woodland",
-    "color": "#91b878"
-  },
-  "raptors": {
-    "name": "Raptors",
-    "color": "#d78a83"
-  },
-  "nature": {
-    "name": "Nature",
-    "color": "#8bb6a8"
-  },
-  "seasonal": {
-    "name": "Seasonal",
-    "color": "#b69ae5"
-  },
-  "habitat": {
-    "name": "Habitat",
-    "color": "#6fc0b5"
-  },
-  "journal": {
-    "name": "Journal",
-    "color": "#d39ab9"
-  },
-  "observations": {
-    "name": "Observations",
-    "color": "#e0bf73"
-  },
-  "ideas": {
-    "name": "Ideas",
-    "color": "#e6b65c"
-  },
-  "learning": {
-    "name": "Learning",
-    "color": "#9b8ce8"
-  },
-  "hobbies": {
-    "name": "Hobbies",
-    "color": "#d28ab2"
-  },
-  "projects": {
-    "name": "Projects",
-    "color": "#70a7e8"
-  },
-  "personal": {
-    "name": "Personal",
-    "color": "#e58ca8"
-  },
   "philosophy": {
     "name": "Philosophy",
     "color": "#eff4fc"
+  },
+  "about-me": {
+    "name": "About Me",
+    "color": "#335938"
+  },
+  "food": {
+    "name": "Food",
+    "color": "#efad72"
   }
 }
