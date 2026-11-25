@@ -30,6 +30,17 @@ function buildTree(){const tree=Object.create(null);for(const path of state.file
 function buildTagList(){const counts=Object.create(null);state.docs.forEach(d=>d.tags.forEach(t=>counts[t]=(counts[t]||0)+1));$("tag_list").innerHTML=Object.keys(counts).sort().map(t=>{const info=tagInfo(t);return `<button class="tag_filter ${state.filter===t?"selected":""}" data-tag="${esc(t)}"><i class="tag_swatch" style="background:${esc(info.color)}"></i>${esc(info.name||t)}<span class="tag_count">${counts[t]}</span></button>`}).join("");$("tag_list").querySelectorAll("[data-tag]").forEach(b=>b.onclick=()=>{state.filter=state.filter===b.dataset.tag?null:b.dataset.tag;buildTagList();buildGraph();});}
 function wikiTargets(body){return[...body.matchAll(/!?\[\[([^\]]+)\]\]/g)].map(m=>m[1].split("|")[0].split("#")[0]);}
 function resolveWiki(target){const wanted=clean(target).toLowerCase();return path_lookup.get(wanted)||title_lookup.get(wanted.split('/').pop());}
+function primary_tag(doc){
+ const tags=doc.tags||[];
+ const normalize=value=>String(value||'').trim().toLowerCase();
+ const folders=clean(doc.path).split('/').slice(0,-1).reverse();
+ for(const folder of folders){
+  const name=normalize(folder);
+  const match=tags.find(tag=>normalize(tag)===name)||tags.find(tag=>normalize(tagInfo(tag).name)===name);
+  if(match)return match;
+ }
+ return tags[0]||'untagged';
+}
 function makeGraphNodes(width,height){
  const docs=[...state.docs.values()].filter(d=>!state.filter||d.tags.includes(state.filter));
  const groups=new Map();
@@ -39,7 +50,7 @@ function makeGraphNodes(width,height){
  const max_spread=Math.max(0,...folders.map(f=>spread_for(groups.get(f).length)));
  const outer=folders.length<=1?0:Math.max(Math.min(width,height)*.31,(2*max_spread+100)/(2*Math.sin(Math.PI/folders.length)));
  folders.forEach((folder,gi)=>{const angle=gi/folders.length*Math.PI*2-Math.PI/2,gx=cx+Math.cos(angle)*outer,gy=cy+Math.sin(angle)*outer,items=groups.get(folder),spread=spread_for(items.length);
- items.forEach((doc,i)=>{const a=i*2.399963229728653,rad=items.length===1?0:spread*Math.sqrt((i+.5)/items.length),tag=doc.tags[0]||'untagged';nodes.push({doc,folder,tag,color:tagInfo(tag).color,x:gx+Math.cos(a)*rad,y:gy+Math.sin(a)*rad,r:doc.path===state.selected?7:5.5});});});return nodes;
+ items.forEach((doc,i)=>{const a=i*2.399963229728653,rad=items.length===1?0:spread*Math.sqrt((i+.5)/items.length),tag=primary_tag(doc);nodes.push({doc,folder,tag,color:tagInfo(tag).color,x:gx+Math.cos(a)*rad,y:gy+Math.sin(a)*rad,r:doc.path===state.selected?7:5.5});});});return nodes;
 }
 function graphPoint(n,w,h){return{x:(n.x-w/2)*state.scale+w/2+state.offset.x,y:(n.y-h/2)*state.scale+h/2+state.offset.y};}
 function buildGraph(){if(graph_frame===null)graph_frame=requestAnimationFrame(()=>{graph_frame=null;draw_graph();});}
