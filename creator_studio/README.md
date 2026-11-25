@@ -16,3 +16,6 @@ Existing media references use relative paths without copying files. Assign tags 
 
 ## v1.4
 Searchable alphabetical tag selector; selection persists during filtering. Existing tag order is retained for graph grouping. Shared inline tag serialization. Unsaved navigation offers save, discard or cancel.
+
+## v1.5 audio support
+Import media and Reference media now embed audio players for MP3, WAV, OGG, OGA, OPUS, M4A, FLAC and AAC. Audio URL inserts a direct HTTP(S) audio source (use HTTPS for the public site). Local playback supports byte ranges. Browser codec support varies. Existing website v9 already supports audio HTML and relative paths; optional_website_patch is only needed if the current compiler lacks the colored-text/audio support. Its requirements file includes the CSS dependency. No app.js replacement is needed. Visual editing remains restricted for media notes.

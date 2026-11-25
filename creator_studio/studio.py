@@ -43,8 +43,14 @@ def catalog():
  return out
 def render(raw,p):
  m,b=split(raw); b=re.sub(r'\[\[([^\]|]+)(?:\|([^\]]+))?\]\]',lambda x:'<a data-wiki="'+bleach.clean(x[1],tags=[],strip=True).replace('"','&quot;')+'">'+bleach.clean(x[2] or x[1],tags=[],strip=True)+'</a>',b)
- h=bleach.clean(MD(b),tags=set(bleach.sanitizer.ALLOWED_TAGS)|set('p h1 h2 h3 h4 h5 h6 pre div span hr br img table thead tbody tr th td del input video audio source iframe'.split()),attributes={'*':['class','title','alt','data-wiki','controls','playsinline','preload','type','width','height','checked','disabled'],'a':['href','data-wiki'],'img':['src','alt'],'video':['src','controls','preload'],'source':['src','type'],'iframe':[],'span':['style']},css_sanitizer=CSSSanitizer(allowed_css_properties=['color']),strip=True)
+ h=bleach.clean(MD(b),tags=set(bleach.sanitizer.ALLOWED_TAGS)|set('p h1 h2 h3 h4 h5 h6 pre div span hr br img table thead tbody tr th td del input video audio source iframe'.split()),attributes={'*':['class','title','alt','data-wiki','controls','playsinline','preload','type','width','height','checked','disabled'],'a':['href','data-wiki'],'img':['src','alt'],'video':['src','controls','preload'],'audio':['src','controls','preload'],'source':['src','type'],'iframe':[],'span':['style']},css_sanitizer=CSSSanitizer(allowed_css_properties=['color']),strip=True)
  return h
+AUDIO_TYPES={'.mp3':'audio/mpeg','.wav':'audio/wav','.ogg':'audio/ogg','.oga':'audio/ogg','.opus':'audio/ogg','.m4a':'audio/mp4','.flac':'audio/flac','.aac':'audio/aac'}
+def media_type(name):
+ return AUDIO_TYPES.get(Path(name).suffix.lower()) or mimetypes.guess_type(name)[0] or 'application/octet-stream'
+def media_kind(name):
+ typ=media_type(name)
+ return next((k for k in ('audio','image','video') if typ.startswith(k+'/')),'file')
 def action(d):
  global ROOT,DATA
  a=d['action']; p=d.get('path','')
@@ -65,8 +71,7 @@ def action(d):
   target=safe(ROOT,d['attachment']);safe(ROOT,p)
   if not target.is_file() or target.suffix.lower()=='.md':raise ValueError('Attachment not found')
   rel=posixpath.relpath(target.relative_to(ROOT).as_posix(),posixpath.dirname(p) or '.')
-  typ=mimetypes.guess_type(target.name)[0] or ''
-  return dict(url=quote(rel,safe='/'),kind='image' if typ.startswith('image/') else 'video' if typ.startswith('video/') else 'file')
+  return dict(url=quote(rel,safe='/'),kind=media_kind(target.name))
  if a=='read':return read(p)
  if a=='save':return save(p,d['raw'],d.get('expected'))
  if a=='new':
@@ -142,7 +147,27 @@ class Handler(BaseHTTPRequestHandler):
    u=urlsplit(self.path); path=unquote(u.path)
    if path=='/': data=Path(__file__).with_name('index.html').read_text().replace('__TOKEN__',TOKEN).encode();typ='text/html; charset=utf-8'
    elif path.startswith('/media/'+TOKEN+'/') and ROOT:
-    q=safe(ROOT,path.split('/',3)[3]);data=q.read_bytes();typ=mimetypes.guess_type(q.name)[0] or 'application/octet-stream'
+    q=safe(ROOT,path.split('/',3)[3]);typ=media_type(q.name)
+    size=q.stat().st_size; start=0; end=size-1; code=200
+    requested=self.headers.get('Range')
+    if requested:
+     match=re.fullmatch(r'bytes=(\d*)-(\d*)',requested)
+     if match and (match[1] or match[2]):
+      if match[1]: start=int(match[1]); end=min(end,int(match[2])) if match[2] else end
+      else: start=max(0,size-int(match[2]))
+      if start>end:
+       self.send_response(416);self.send_header('Content-Range',f'bytes */{size}');self.end_headers();return
+      code=206
+    self.send_response(code);self.send_header('Content-Type',typ);self.send_header('Content-Length',str(end-start+1));self.send_header('Accept-Ranges','bytes');self.send_header('X-Content-Type-Options','nosniff');self.send_header('Content-Security-Policy',"sandbox; default-src 'none'")
+    if code==206:self.send_header('Content-Range',f'bytes {start}-{end}/{size}')
+    self.end_headers()
+    with q.open('rb') as stream:
+     stream.seek(start); remaining=end-start+1
+     while remaining:
+      chunk=stream.read(min(65536,remaining))
+      if not chunk:break
+      self.wfile.write(chunk);remaining-=len(chunk)
+    return
    else: self.send_error(404);return
    self.send_response(200);self.send_header('Content-Type',typ);self.send_header('Content-Length',str(len(data)));self.send_header('X-Content-Type-Options','nosniff');self.send_header('Content-Security-Policy',"sandbox; default-src 'none'" if path.startswith('/media/') else "default-src 'self' 'unsafe-inline' data: https: http:");self.end_headers();self.wfile.write(data)
   except Exception:self.send_error(404)
