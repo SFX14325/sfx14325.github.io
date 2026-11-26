@@ -10,5 +10,13 @@
   "food": {
     "name": "Food",
     "color": "#efad72"
+  },
+  "daily-thoughts": {
+    "name": "Daily Thoughts",
+    "color": "#78a9e8"
+  },
+  "family": {
+    "name": "Family",
+    "color": "#e98e78"
   }
 }
