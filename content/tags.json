@@ -18,5 +18,25 @@
   "family": {
     "name": "Family",
     "color": "#e98e78"
+  },
+  "games": {
+    "name": "Games",
+    "color": "#ecb975"
+  },
+  "music": {
+    "name": "Music",
+    "color": "#bf8cd5"
+  },
+  "people": {
+    "name": "People",
+    "color": "#84dda0"
+  },
+  "friend": {
+    "name": "Friend",
+    "color": "#96dd84"
+  },
+  "voice-snippets": {
+    "name": "Voice Snippets",
+    "color": "#71e7f0"
   }
 }

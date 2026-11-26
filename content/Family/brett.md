@@ -1,9 +1,9 @@
 ---
 title: Papa Brett
-tags: [family]
+tags: [family, people]
 created: '2026-11-25'
-updated: '2026-11-25'
-version: 3
+updated: '2026-11-26'
+version: 4
 ---
 # Papa Brett
 
@@ -21,4 +21,4 @@ When my [[About Me/family|Family]] was younger he would always be sure to everyd
 
 ---
 
-*Created: 2026-11-25 | Updated: 2026-11-25 | Version: 3*
+*Created: 2026-11-25 | Updated: 2026-11-26 | Version: 4*
