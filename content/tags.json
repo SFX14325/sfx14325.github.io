@@ -38,5 +38,9 @@
   "voice-snippets": {
     "name": "Voice Snippets",
     "color": "#71e7f0"
+  },
+  "content-creation": {
+    "name": "Content Creation",
+    "color": "#c29ec2"
   }
 }
